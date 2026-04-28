@@ -3,6 +3,15 @@ import click
 from flask import Flask, request, jsonify
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import logging
+
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    level=logging.INFO
+)
+
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -21,7 +30,7 @@ def get_db_connection():
     return conn
 
 def init_db():
-    print("Tentando inicializar a tabela 'flags'...")
+    logger.info("Tentando inicializar a tabela 'flags'...")
     try:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -36,12 +45,11 @@ def init_db():
         conn.commit()
         cur.close()
         conn.close()
-        print("Tabela 'flags' inicializada com sucesso.")
+        logger.info("Tabela 'flags' inicializada com sucesso.")
     except psycopg2.OperationalError as e:
-        print(f"Erro de conexão ao inicializar o banco de dados: {e}")
+        logger.error(f"Erro de conexão ao inicializar o banco de dados: {e}")
     except Exception as e:
-        print(f"Um erro inesperado ocorreu durante a inicialização do DB: {e}")
-
+        logger.error(f"Um erro inesperado ocorreu durante a inicialização do DB: {e}")
 @app.cli.command("init-db")
 def init_db_command():
     init_db()

@@ -1,0 +1,21 @@
+[Unit]
+Description=Toggle Master API
+After=network.target
+
+[Service]
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/opt/apl/toggle_master
+EnvironmentFile=/opt/apl/toggle_master/.env
+
+ExecStart=/opt/apl/toggle_master/venv/bin/python -m gunicorn --bind 0.0.0.0:5000 app:app
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=toggle_master
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
