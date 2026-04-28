@@ -2,7 +2,7 @@
 
 ## Arquitetura da Solução
 
-[Arquitetura](./docs/arquitetura.png)
+![Arquitetura](./docs/arquitetura.png)
 
 > A imagem representa a separação entre camada de aplicação e banco de dados dentro de uma VPC, utilizando boas práticas básicas de segurança.
 
@@ -29,6 +29,8 @@ A arquitetura foi construída na AWS utilizando uma abordagem simples, adequada 
 
 ### Fluxo:
 
+A aplicação é exposta via Nginx na porta 80, que atua como proxy reverso encaminhando as requisições para a aplicação Flask executando internamente na porta 5000.
+
 ---
 
 ## Infraestrutura implementada
@@ -51,15 +53,58 @@ A arquitetura foi construída na AWS utilizando uma abordagem simples, adequada 
 - Sem acesso público
 - Acesso restrito via Security Group
 
+#### Configuração do banco de dados
+
+O banco de dados foi criado manualmente, juntamente com um usuário específico para a aplicação.
+
+Foram aplicadas permissões para permitir que a aplicação pudesse criar e manipular tabelas dentro do schema público, garantindo o funcionamento da inicialização via comando `flask init-db`.
+
+O acesso ao banco é permitido exclusivamente a partir da instância EC2, garantindo que não exista exposição direta à internet.
+
 ---
 
 ### Nginx
 
-Foi utilizado como **proxy reverso**, expondo a aplicação na porta 80.
+O Nginx foi utilizado como proxy reverso, atuando como ponto de entrada da aplicação.
 
-Função:
-- Receber requisições externas
-- Redirecionar internamente para a aplicação na porta 5000
+Sua principal função é desacoplar a porta da aplicação da exposição externa, permitindo que a API seja acessada via porta 80, enquanto a aplicação continua rodando internamente na porta 5000.
+
+Benefícios dessa abordagem:
+
+- Não expor diretamente a porta da aplicação
+- Padronizar o acesso via HTTP
+- Melhor organização da arquitetura
+- Possibilidade futura de adicionar HTTPS sem alterar a aplicação
+
+Fluxo de requisição:
+
+Internet → Nginx (porta 80) → Aplicação Flask (porta 5000) → RDS
+
+---
+
+## Segurança
+
+A arquitetura foi desenhada considerando princípios básicos de segurança.
+
+### Security Group da EC2
+
+- Porta 80 aberta para acesso público
+- Porta 443 preparada para uso futuro com HTTPS
+- Porta 22 restrita a um IP específico para acesso administrativo
+
+### Security Group do RDS
+
+- Porta 5432 liberada apenas para o Security Group da EC2
+- Sem acesso direto da internet
+
+### Outras práticas aplicadas
+
+- Banco de dados em subnet privada
+- Comunicação interna via VPC
+- Princípio de menor privilégio entre os recursos
+- Separação entre camada de aplicação e dados
+
+Essa abordagem garante que apenas a aplicação tenha acesso ao banco de dados, reduzindo a superfície de ataque.
 
 ---
 
@@ -81,11 +126,19 @@ O deploy foi automatizado via script `setup.sh`, que executa:
 
 ---
 
+## Testes da API
+
+Foi disponibilizada no repositório uma pasta contendo uma collection do Insomnia.
+
+Essa collection foi utilizada para validar os endpoints da aplicação tanto em ambiente local quanto no ambiente em produção (EC2), facilitando a execução de testes e a validação do comportamento da API.
+
+---
+
 ## Análise da aplicação como monólito
 
 A aplicação analisada é considerada um monólito porque toda a lógica do sistema está concentrada em um único projeto. Isso significa que funcionalidades como regras de negócio, acesso ao banco de dados e endpoints da API estão no mesmo código e são executadas em um único processo.
 
-Não existe separação entre serviços independentes, como ocorreria em uma 
+Não existe separação entre serviços independentes, como ocorreria em uma arquitetura de microsserviços.
 
 ---
 
@@ -105,7 +158,6 @@ Não existe separação entre serviços independentes, como ocorreria em uma
 - Manutenção mais complexa com crescimento
 - Risco maior de impacto em mudanças
 
-
 ---
 
 ## Análise baseada nos 12-Factor App
@@ -123,14 +175,13 @@ Não existe separação entre serviços independentes, como ocorreria em uma
 - Falta separação clara entre build/release/run
 - Escalabilidade limitada por ser monolito
 
-
 ---
 
 ## Estimativa de custo
 
 Estimativa realizada com AWS Pricing Calculator:
 
-https://calculator.aws/#/estimate?nc2=h_pr_calc
+[AWS Pricing Calculator](https://calculator.aws/#/estimate?nc2=h_pr_calc&id=7139aa9abce194c09554daa08f3b3f275031dc8c)
 
 ### Recursos considerados:
 
@@ -145,7 +196,7 @@ https://calculator.aws/#/estimate?nc2=h_pr_calc
 
 Esse valor é adequado para um ambiente de MVP, mantendo baixo custo e simplicidade.
 
-
+![Custo](./docs/custo_infra_aws.png)
 ---
 
 ## Boas práticas aplicadas
@@ -174,4 +225,3 @@ Para evolução futura:
 - Melhorar observabilidade (logs estruturados)
 - Separar camadas (possível migração para microsserviços)
 - Pipeline de CI/CD
-
