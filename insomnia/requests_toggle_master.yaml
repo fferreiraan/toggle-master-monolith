@@ -7,12 +7,12 @@ meta:
   modified: 1777230469783
   description: ""
 collection:
-  - url: "{{ _.localhost }}/flags"
+  - url: "{{ _.prod }}/flags"
     name: flags
     meta:
       id: req_8ff953d56e6a4f9788f781e64528df3c
       created: 1777148031972
-      modified: 1777148212393
+      modified: 1777334813790
       isPrivate: false
       description: ""
       sortKey: -1777148031973
@@ -30,12 +30,12 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: "{{ _.localhost }}/flags"
+  - url: "{{ _.prod }}/flags"
     name: flags
     meta:
       id: req_34b5d819d73b445fb9fbd8b7db728624
       created: 1777148124649
-      modified: 1777148464740
+      modified: 1777337848988
       isPrivate: false
       description: ""
       sortKey: -1777148031923
@@ -62,12 +62,12 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: "{{ _.localhost }}/flags/new-feature"
+  - url: "{{ _.prod }}/flags/new-feature"
     name: flags
     meta:
       id: req_97f5bafc0f8c47d1a2a69f0e7d0df42c
       created: 1777148265847
-      modified: 1777148492335
+      modified: 1777337853245
       isPrivate: false
       description: ""
       sortKey: -1777148031873
@@ -93,12 +93,12 @@ collection:
         send: true
         store: true
       rebuildPath: true
-  - url: "{{ _.localhost }}/flags/teste"
+  - url: "{{ _.prod }}/flags/teste"
     name: flags/name
     meta:
       id: req_6a993fedaa3b4bceb4398e17f9a59571
       created: 1777148373791
-      modified: 1777148379377
+      modified: 1777337844152
       isPrivate: false
       description: ""
       sortKey: -1777148031948
@@ -127,7 +127,8 @@ environments:
   meta:
     id: env_e7bcca0ef372eb90f3f3a365e70ebb11917c2f14
     created: 1777148031858
-    modified: 1777148097703
+    modified: 1777337671237
     isPrivate: false
   data:
     localhost: http://127.0.0.1:5000
+    prod: http://54.146.109.114:80
