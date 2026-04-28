@@ -1,5 +1,7 @@
 #!/bin/bash
-set -e
+set -Eeuo pipefail
+
+trap 'echo "ERRO: falha na linha $LINENO ao executar: $BASH_COMMAND"; exit 1' ERR
 
 APP_NAME="toggle_master"
 APP_USER="ec2-user"
@@ -69,6 +71,20 @@ else
   echo "ERRO: arquivo .env não encontrado"
   exit 1
 fi
+
+echo "Verificando Nginx..."
+if ! command -v nginx &> /dev/null; then
+  sudo dnf install -y nginx
+else
+  echo "nginx já instalado"
+fi
+
+echo "Configurando Nginx..."
+sudo cp "$APP_DIR/infra/nginx/toggle_master.conf" /etc/nginx/conf.d/toggle_master.conf
+
+sudo nginx -t
+sudo systemctl enable nginx
+sudo systemctl restart nginx
 
 echo "Executando inicialização do banco de dados..."
 export FLASK_APP=app.py
